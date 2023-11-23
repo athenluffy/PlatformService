@@ -21,6 +21,30 @@ namespace PlatformService.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("PlatformService.Models.Command", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Commandline")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HowTo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlatformId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlatformId");
+
+                    b.ToTable("Command");
+                });
+
             modelBuilder.Entity("PlatformService.Models.Platform", b =>
                 {
                     b.Property<int>("Id")
@@ -41,6 +65,22 @@ namespace PlatformService.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Platforms");
+                });
+
+            modelBuilder.Entity("PlatformService.Models.Command", b =>
+                {
+                    b.HasOne("PlatformService.Models.Platform", "Platform")
+                        .WithMany("Commands")
+                        .HasForeignKey("PlatformId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Platform");
+                });
+
+            modelBuilder.Entity("PlatformService.Models.Platform", b =>
+                {
+                    b.Navigation("Commands");
                 });
 #pragma warning restore 612, 618
         }

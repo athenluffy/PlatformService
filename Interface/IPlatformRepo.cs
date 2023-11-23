@@ -10,7 +10,7 @@ namespace PlatformService.Interface
 
         Task<Platform?> GetPlatform(int id);
 
-        Task<Platform?> AddPlatform(Platform platform);
+        Task AddPlatform(Platform platform);
 
         void Delete(Platform platform); 
     }

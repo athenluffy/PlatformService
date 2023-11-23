@@ -19,7 +19,7 @@ namespace PlatformService.AsyncDataServices
                 HostName = _config["RabbitMqHost"],
                 Port = int.Parse(_config["RabbitMqPort"])
             };
-
+            Console.WriteLine("Constructor Called");
             try
             {
                 _connection = factory.CreateConnection();
@@ -40,6 +40,7 @@ namespace PlatformService.AsyncDataServices
                 Console.WriteLine(e.Message);
                 throw;
             }
+
         }
 
         private void RabbitMqConnectionShutdown(object? sender, ShutdownEventArgs e)
@@ -82,6 +83,7 @@ namespace PlatformService.AsyncDataServices
                 _channel.Close();
                 _connection.Close();
             }
+            
         }
     }
 }

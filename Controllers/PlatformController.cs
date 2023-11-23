@@ -19,10 +19,12 @@ public class PlatformController : ControllerBase
     private readonly ICommandDataClient _client;
     private readonly IMessageBusCLient _busClient;
 
+
     public PlatformController(ILogger<PlatformController> logger,
      IPlatformRepo platform, IMapper mapper,
      ICommandDataClient client,
      IMessageBusCLient busCLient
+     
      )
     {
         _logger = logger;
@@ -57,11 +59,11 @@ public class PlatformController : ControllerBase
 
         var platformModel = _mapper.Map<Platform>(platformCreate);
 
-        var p = await _context.AddPlatform(platformModel);
+        await _context.AddPlatform(platformModel);
 
         await _context.savechanges();
 
-        var platformReadDto = _mapper.Map<PlatformReadDto>(p);
+        var platformReadDto = _mapper.Map<PlatformReadDto>(platformModel);
 
 
         //Sync
@@ -78,21 +80,37 @@ public class PlatformController : ControllerBase
 
         //ASync
 
-        // try
-        // {
+        try
+        {
             Console.WriteLine("Converted into platformPublishDto");
-            var message = _mapper.Map<PlatformPublishDto>(platformReadDto);
+            PlatformPublishDto message = _mapper.Map<PlatformPublishDto>(platformReadDto);
 
             message.Event = "Platform_Published";
 
-            Console.WriteLine("Sending to Rabbit MQ");
+            Console.WriteLine($"Sending to Rabbit MQ {message.Event}");
             _busClient.PublishnewPlatform(message);
+
+           
             Console.WriteLine("Successfully sent in ASync");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Failed to sent in ASync");
+            Console.WriteLine(ex.Message);
+            throw;
+        }
+        
+        // try
+        // {
+        //      Console.WriteLine("Sending to Rabbit MQ Producer");
+        //     _producer.SendMessage<string>("gg");
+        //      Console.WriteLine("Successfully Sent!!!");
         // }
         // catch (Exception ex)
         // {
-        //     Console.WriteLine("Failed to sent in ASync");
+        //     Console.WriteLine("Failed to sent in ASync Producer");
         //     Console.WriteLine(ex.Message);
+            
         // }
 
         return platformModel;

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformService.AsyncDataServices;
 using PlatformService.Data;
+using PlatformService.Grpc;
 using PlatformService.Interface;
 using PlatformService.Repository;
 using PlatformService.SyncDataServices.Http;
@@ -19,15 +20,19 @@ else
      builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMemory"));
     Console.WriteLine("Using InMemory Database");
 }
+// builder.Services.AddHostedService<MessageBusSubscriber>();
 
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 
-builder.Services.AddTransient<IMessageBusCLient, MessageBusClient>();
+builder.Services.AddSingleton<IMessageBusCLient, MessageBusClient>();
+// builder.Services.AddSingleton<IMessageProducer,RabbitMQProducer>();
 
 builder.Services.AddScoped<IPlatformRepo,PlatformRepo>();
+
+builder.Services.AddGrpc();
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -45,8 +50,12 @@ var app = builder.Build();
 
 await SeedData.PrePopulateAsync(app,app.Environment.IsProduction());
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.MapControllers();
-
+app.MapGrpcService<GrpcPlatformService>();
+app.MapGet("/protos/platform.proto", async  context=>
+{
+ await context.Response.WriteAsync(File.ReadAllText("protos/platforms.proto"));
+});
 app.Run();

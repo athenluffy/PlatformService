@@ -13,11 +13,11 @@ namespace PlatformService.Repository
         {
             _context = context;
         }
-        public async Task<Platform?> AddPlatform(Platform platform)
+        public async Task AddPlatform(Platform platform)
         {
-            await _context.Platforms.AddAsync(platform);
+             await _context.Platforms.AddAsync(platform);
 
-            return await _context.Platforms.FindAsync(platform.Id)!;
+             //await _context.Platforms.FindAsync(platform.Id)!;
         }
 
         public void Delete(Platform platform)
