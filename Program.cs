@@ -13,24 +13,24 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options =>
 {
     //Setup a HTTP/2 endpoint without TLS.
-    options.ListenAnyIP(666, o => o.Protocols =
+    options.ListenAnyIP(100, o => o.Protocols =
         HttpProtocols.Http2);
-        options.ListenAnyIP(777, o => o.Protocols =
+        options.ListenAnyIP(90, o => o.Protocols =
         HttpProtocols.Http1);
 
 });
 
 //Add services to the container.
-// if (builder.Environment.IsProduction())
-// {
-//     builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("platformdb")));
-//     Console.WriteLine("Using Sql Server");
-// }
-// else
-// {
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("platformdb")));
+    Console.WriteLine("Using Sql Server");
+}
+else
+{
     builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMemory"));
     Console.WriteLine("Using InMemory Database");
-//}
+}
 // builder.Services.AddHostedService<MessageBusSubscriber>();
 
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
@@ -59,7 +59,7 @@ app.UseSwaggerUI();
 
 //app.UseHttpsRedirection();
 
-//await SeedData.PrePopulateAsync(app, app.Environment.IsProduction());
+await SeedData.PrePopulateAsync(app, app.Environment.IsProduction());
 
 //app.UseAuthorization();
 
